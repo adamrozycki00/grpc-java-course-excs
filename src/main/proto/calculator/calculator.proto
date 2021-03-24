@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package calculator;
+
+option java_package = "com.tenetmind.calculator";
+option java_multiple_files = true;
+
+message Summation {
+  int32 num_1 = 1;
+  int32 num_2 = 2;
+}
+
+message SummationRequest {
+  Summation summation = 1;
+}
+
+message SummationResponse {
+  int32 result = 1;
+}
+
+service CalculatorService {
+  rpc sum(SummationRequest) returns (SummationResponse) {};
+}
+
