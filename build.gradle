@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'com.google.protobuf' version '0.8.15'
+}
+
+group 'com.tenetmind'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.grpc:grpc-netty-shaded:1.36.0'
+    implementation 'io.grpc:grpc-protobuf:1.36.0'
+    implementation 'io.grpc:grpc-stub:1.36.0'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.15.6"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.36.0'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+sourceSets.main.java.srcDir new File(buildDir, 'generated/source')
+idea {
+    module {
+        // Marks the already(!) added srcDir as "generated"
+        generatedSourceDirs += file('build/generated/source')
+    }
+}
+
