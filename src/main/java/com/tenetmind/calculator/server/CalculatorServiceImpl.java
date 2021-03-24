@@ -9,13 +9,8 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
 
     @Override
     public void sum(SummationRequest request, StreamObserver<SummationResponse> responseObserver) {
-        int num1 = request.getSummation().getNum1();
-        int num2 = request.getSummation().getNum2();
-
-        int result = num1 + num2;
-
         SummationResponse response = SummationResponse.newBuilder()
-                .setResult(result)
+                .setResult(request.getNum1() + request.getNum2())
                 .build();
 
         responseObserver.onNext(response);

@@ -5,13 +5,9 @@ package calculator;
 option java_package = "com.tenetmind.calculator";
 option java_multiple_files = true;
 
-message Summation {
+message SummationRequest {
   int32 num_1 = 1;
   int32 num_2 = 2;
-}
-
-message SummationRequest {
-  Summation summation = 1;
 }
 
 message SummationResponse {
