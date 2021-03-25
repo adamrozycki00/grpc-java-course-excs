@@ -1,8 +1,6 @@
 package com.tenetmind.calculator.server;
 
-import com.tenetmind.calculator.CalculatorServiceGrpc;
-import com.tenetmind.calculator.SummationRequest;
-import com.tenetmind.calculator.SummationResponse;
+import com.tenetmind.calculator.*;
 import io.grpc.stub.StreamObserver;
 
 public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServiceImplBase {
@@ -14,6 +12,26 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
                 .build();
 
         responseObserver.onNext(response);
+
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void decompose(PrimeNumberDecompositionRequest request,
+                          StreamObserver<PrimeNumberDecompositionResponse> responseObserver) {
+        int number = request.getNumber();
+        int prime = 2;
+
+        while (number > 1) {
+            if (number % prime == 0) {
+                responseObserver.onNext(PrimeNumberDecompositionResponse.newBuilder()
+                        .setPartialResult(prime)
+                        .build());
+                number /= prime;
+            } else {
+                prime++;
+            }
+        }
 
         responseObserver.onCompleted();
     }

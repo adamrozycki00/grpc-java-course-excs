@@ -10,21 +10,6 @@ public class PrimeNumberDecompositionServiceImpl
 
     @Override
     public void decompose(PrimeNumberDecompositionRequest request, StreamObserver<PrimeNumberDecompositionResponse> responseObserver) {
-        int number = request.getNumber();
-        int prime = 2;
-
-        while (number > 1) {
-            if (number % prime == 0) {
-                responseObserver.onNext(PrimeNumberDecompositionResponse.newBuilder().
-                        setPartialResult(prime)
-                        .build());
-                number /= prime;
-            } else {
-                prime++;
-            }
-        }
-
-        responseObserver.onCompleted();
     }
 
 }
