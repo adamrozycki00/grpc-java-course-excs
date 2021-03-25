@@ -1,4 +1,4 @@
-package com.tenetmind.greeting.server;
+package com.tenetmind.decomposition.server;
 
 import com.tenetmind.helper.Helper;
 import io.grpc.Server;
@@ -6,13 +6,15 @@ import io.grpc.ServerBuilder;
 
 import java.io.IOException;
 
-public class GreetingServer {
+public class PrimeNumberDecompositionServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        Server server = ServerBuilder.forPort(50051)
-                .addService(new GreetServiceImpl())
+        Server server = ServerBuilder.forPort(50052)
+                .addService(new PrimeNumberDecompositionServiceImpl())
                 .build();
         Helper.runServer(server);
     }
 
 }
+
+
