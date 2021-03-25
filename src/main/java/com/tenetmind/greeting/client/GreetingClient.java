@@ -45,7 +45,7 @@ public class GreetingClient {
         greetClient.greetManyTimes(greetManyTimesRequest)
                 .forEachRemaining(singleResponse -> System.out.println(singleResponse.getResult()));
 
-        System.out.println("Shutting down channel...");
+        System.out.println("Shutting down the channel...");
         channel.shutdown();
         System.out.println("The channel has been shut down");
     }

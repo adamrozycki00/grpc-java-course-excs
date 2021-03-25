@@ -37,6 +37,8 @@ public class CalculatorClient {
 
         serverStub.decompose(decompositionRequest)
                 .forEachRemaining(partialResponse -> System.out.println(partialResponse.getPartialResult()));
-    }
 
+        System.out.println("Shutting down the channel...");
+        channel.shutdown();
+        System.out.println("The channel has been shut down");    }
 }
