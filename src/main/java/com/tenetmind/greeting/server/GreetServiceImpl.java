@@ -1,9 +1,6 @@
 package com.tenetmind.greeting.server;
 
-import com.tenetmind.greet.GreetRequest;
-import com.tenetmind.greet.GreetResponse;
-import com.tenetmind.greet.GreetServiceGrpc;
-import com.tenetmind.greet.Greeting;
+import com.tenetmind.greet.*;
 import io.grpc.stub.StreamObserver;
 
 public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
@@ -20,6 +17,27 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
         responseObserver.onNext(response);
 
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public void greetManyTimes(GreetManyTimesRequest request, StreamObserver<GreetManyTimesResponse> responseObserver) {
+        String firstName = request.getGreeting().getFirstName();
+
+        try {
+            for (int i = 0; i < 10; i++) {
+                String result = "Hello, " + firstName + "! Response no. " + (i + 1);
+                final GreetManyTimesResponse response = GreetManyTimesResponse.newBuilder()
+                        .setResult(result)
+                        .build();
+
+                responseObserver.onNext(response);
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            responseObserver.onCompleted();
+        }
     }
 
 }

@@ -13,10 +13,12 @@ public class GreetingServer {
                 .addService(new GreetServiceImpl())
                 .build();
 
+        System.out.println("Starting the server...");
         server.start();
+        System.out.println("The server has started");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Received shutdown request");
+            System.out.println("Received shutdown request. Shutting down the server...");
             server.shutdown();
             System.out.println("Successfully stopped the server");
         }));
