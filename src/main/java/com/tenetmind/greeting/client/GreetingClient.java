@@ -1,53 +1,131 @@
 package com.tenetmind.greeting.client;
 
-import com.tenetmind.greet.GreetManyTimesRequest;
-import com.tenetmind.greet.GreetServiceGrpc;
-import com.tenetmind.greet.Greeting;
+import com.tenetmind.greet.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tenetmind.greet.GreetServiceGrpc.newBlockingStub;
+
 
 public class GreetingClient {
 
     public static void main(String[] args) {
         System.out.println("Hello, I'm a gRPC client!");
 
+        GreetingClient main = new GreetingClient();
+        main.run();
+    }
+
+    private void run() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
                 .usePlaintext()
                 .build();
 
-        System.out.println("Creating stub...");
-//        DummyServiceGrpc.DummyServiceBlockingStub syncClient = newBlockingStub(channel);
-//        DummyServiceGrpc.DummyServiceFutureStub asyncClient = newFutureStub(channel);
+//        doUnaryCall(channel);
+//        doServerStreamingCall(channel);
+        doClientStreamingCall(channel);
+//        doBiDirectionalStreamingCall(channel);
 
-        GreetServiceGrpc.GreetServiceBlockingStub greetClient = newBlockingStub(channel);
+        System.out.println("Shutting down the channel");
+        channel.shutdown();
+    }
+
+    private void doUnaryCall(ManagedChannel channel) {
+        GreetServiceGrpc.GreetServiceBlockingStub blockingStub = newBlockingStub(channel);
 
         Greeting greeting = Greeting.newBuilder()
                 .setFirstName("Adam")
                 .setLastName("Rozycki")
                 .build();
 
-        // Unary call
-//        GreetRequest greetRequest = GreetRequest.newBuilder()
-//                .setGreeting(greeting)
-//                .build();
-//
-//        GreetResponse greetResponse = greetClient.greet(greetRequest);
-//
-//        System.out.println(greetResponse.getResult());
+        GreetRequest greetRequest = GreetRequest.newBuilder()
+                .setGreeting(greeting)
+                .build();
 
-        // Server-streaming call
+        GreetResponse greetResponse = blockingStub.greet(greetRequest);
+
+        System.out.println(greetResponse.getResult());
+    }
+
+    private void doServerStreamingCall(ManagedChannel channel) {
+        GreetServiceGrpc.GreetServiceBlockingStub blockingStub = newBlockingStub(channel);
+
+        Greeting greeting = Greeting.newBuilder()
+                .setFirstName("Adam")
+                .setLastName("Rozycki")
+                .build();
+
         GreetManyTimesRequest greetManyTimesRequest = GreetManyTimesRequest.newBuilder()
                 .setGreeting(greeting)
                 .build();
 
-        greetClient.greetManyTimes(greetManyTimesRequest)
+        blockingStub.greetManyTimes(greetManyTimesRequest)
                 .forEachRemaining(singleResponse -> System.out.println(singleResponse.getResult()));
+    }
 
-        System.out.println("Shutting down channel...");
-        channel.shutdown();
-        System.out.println("The channel has been shut down");
+    private void doClientStreamingCall(ManagedChannel channel) {
+        GreetServiceGrpc.GreetServiceStub asyncStub = GreetServiceGrpc.newStub(channel);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<LongGreetRequest> requestObserver =
+                asyncStub.longGreet(new StreamObserver<>() {
+                    @Override
+                    public void onNext(LongGreetResponse value) {
+                        //we get a response from the server
+                        //onNext() will be called only once
+                        System.out.println("Received a response from the server. The response is:");
+                        System.out.println(value.getResult());
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        //we get an error from the server
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        //the server is done sending us data
+                        //onCompleted() will be called right after onNext()
+                        System.out.println("Server has completed responding");
+                        latch.countDown();
+                    }
+                });
+
+        LongGreetRequest message1 = getLongGreetRequest("Adam");
+        LongGreetRequest message2 = getLongGreetRequest("Hanna");
+        LongGreetRequest message3 = getLongGreetRequest("John");
+        List<LongGreetRequest> listOfRequests = List.of(message1, message2, message3);
+
+        AtomicInteger messageNumber = new AtomicInteger(1) ;
+
+        listOfRequests.forEach(request -> {
+            System.out.println("Streaming message #" + messageNumber.getAndIncrement());
+            requestObserver.onNext(request);
+        });
+
+        //we tell the server that the client is done sending data
+        requestObserver.onCompleted();
+
+        try {
+            latch.await(20L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private LongGreetRequest getLongGreetRequest(String firstName) {
+        return LongGreetRequest.newBuilder()
+                .setGreeting(Greeting.newBuilder()
+                        .setFirstName(firstName)
+                        .build())
+                .build();
     }
 
 }
