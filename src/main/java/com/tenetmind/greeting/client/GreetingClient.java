@@ -8,7 +8,6 @@ import io.grpc.stub.StreamObserver;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.tenetmind.greet.GreetServiceGrpc.newBlockingStub;
 
@@ -72,8 +71,13 @@ public class GreetingClient {
     private void doClientStreamingCall(ManagedChannel channel) {
         GreetServiceGrpc.GreetServiceStub asyncStub = GreetServiceGrpc.newStub(channel);
 
-        CountDownLatch latch = new CountDownLatch(1);
+        LongGreetRequest request1 = getLongGreetRequest("Adam");
+        LongGreetRequest request2 = getLongGreetRequest("Hanna");
+        LongGreetRequest request3 = getLongGreetRequest("John");
+        List<LongGreetRequest> listOfRequests = List.of(request1, request2, request3);
 
+        //we get a request observer to stream our requests (using longGreet() method)
+        CountDownLatch latch = new CountDownLatch(1);
         StreamObserver<LongGreetRequest> requestObserver =
                 asyncStub.longGreet(new StreamObserver<>() {
                     @Override
@@ -98,23 +102,14 @@ public class GreetingClient {
                     }
                 });
 
-        LongGreetRequest message1 = getLongGreetRequest("Adam");
-        LongGreetRequest message2 = getLongGreetRequest("Hanna");
-        LongGreetRequest message3 = getLongGreetRequest("John");
-        List<LongGreetRequest> listOfRequests = List.of(message1, message2, message3);
+        //the client sends our requests to the server one by one
+        listOfRequests.forEach(requestObserver::onNext);
 
-        AtomicInteger messageNumber = new AtomicInteger(1) ;
-
-        listOfRequests.forEach(request -> {
-            System.out.println("Streaming message #" + messageNumber.getAndIncrement());
-            requestObserver.onNext(request);
-        });
-
-        //we tell the server that the client is done sending data
+        //the client tells the server that is done sending data
         requestObserver.onCompleted();
 
         try {
-            latch.await(20L, TimeUnit.SECONDS);
+            latch.await(3, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
