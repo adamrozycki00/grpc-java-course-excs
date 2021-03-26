@@ -178,12 +178,4 @@ public class GreetingClient {
                 .build();
     }
 
-    private GreetEveryoneRequest getGreetEveryoneRequest(String firstName) {
-        return GreetEveryoneRequest.newBuilder()
-                .setGreeting(Greeting.newBuilder()
-                        .setFirstName(firstName)
-                        .build())
-                .build();
-    }
-
 }

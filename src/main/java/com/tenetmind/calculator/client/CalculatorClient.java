@@ -28,7 +28,8 @@ public class CalculatorClient {
 
 //        calculateSum(channel);
 //        decomposeIntoPrimeNumbers(channel);
-        calculateAverage(channel);
+//        calculateAverage(channel);
+        findMaximum(channel);
 
         System.out.println("Shutting down the channel");
         channel.shutdown();
@@ -96,6 +97,45 @@ public class CalculatorClient {
         requests.forEach(requestObserver::onNext);
 
         requestObserver.onCompleted();
+
+        try {
+            latch.await(3, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void findMaximum(ManagedChannel channel) {
+        CalculatorServiceGrpc.CalculatorServiceStub asyncStub = CalculatorServiceGrpc.newStub(channel);
+
+        final List<Integer> integers = List.of(1, 5, 3, 6, 2, 20);
+        final List<FindMaximumRequest> requests = integers.stream()
+                .map(integer -> FindMaximumRequest.newBuilder()
+                        .setNumber(integer)
+                        .build())
+                .collect(Collectors.toList());
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<FindMaximumRequest> requestObserver = asyncStub.maximum(new StreamObserver<>() {
+            @Override
+            public void onNext(FindMaximumResponse value) {
+                int maximum = value.getMaximum();
+                System.out.println("Current maximum: " + maximum);
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                latch.countDown();
+            }
+
+            @Override
+            public void onCompleted() {
+                latch.countDown();
+            }
+        });
+
+        requests.forEach(requestObserver::onNext);
 
         try {
             latch.await(3, TimeUnit.SECONDS);
