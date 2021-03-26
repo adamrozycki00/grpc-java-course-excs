@@ -76,8 +76,9 @@ public class GreetingClient {
         LongGreetRequest request3 = getLongGreetRequest("John");
         List<LongGreetRequest> listOfRequests = List.of(request1, request2, request3);
 
-        //we get a request observer to stream our requests (using longGreet() method)
         CountDownLatch latch = new CountDownLatch(1);
+
+        //we get a request observer (using longGreet() method) for streaming our requests
         StreamObserver<LongGreetRequest> requestObserver =
                 asyncStub.longGreet(new StreamObserver<>() {
                     @Override
