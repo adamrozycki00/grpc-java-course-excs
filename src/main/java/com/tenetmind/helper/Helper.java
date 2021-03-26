@@ -1,6 +1,6 @@
 package com.tenetmind.helper;
 
-import com.tenetmind.greeting.server.GreetServiceImpl;
+import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
@@ -8,9 +8,9 @@ import java.io.IOException;
 
 public class Helper {
 
-    public void runServer(int port) throws IOException, InterruptedException {
+    public void runServer(BindableService service, int port) throws IOException, InterruptedException {
         Server server = ServerBuilder.forPort(port)
-                .addService(new GreetServiceImpl())
+                .addService(service)
                 .build();
 
         System.out.println("Starting the server...");

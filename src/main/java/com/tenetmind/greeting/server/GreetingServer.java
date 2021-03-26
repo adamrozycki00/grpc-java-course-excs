@@ -7,7 +7,7 @@ import java.io.IOException;
 public class GreetingServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        new Helper().runServer(50051);
+        new Helper().runServer(new GreetServiceImpl(), 50051);
     }
 
 }
