@@ -1,6 +1,7 @@
 package com.tenetmind.calculator.client;
 
 import com.tenetmind.calculator.CalculatorServiceGrpc;
+import com.tenetmind.calculator.PrimeNumberDecompositionRequest;
 import com.tenetmind.calculator.SummationRequest;
 import com.tenetmind.calculator.SummationResponse;
 import io.grpc.ManagedChannel;
@@ -15,17 +16,29 @@ public class CalculatorClient {
                 .usePlaintext()
                 .build();
 
-        CalculatorServiceGrpc.CalculatorServiceBlockingStub calcClient = newBlockingStub(channel);
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub serverStub = newBlockingStub(channel);
 
-        SummationRequest request = SummationRequest.newBuilder()
+        SummationRequest summationRequest = SummationRequest.newBuilder()
                 .setNum1(10)
                 .setNum2(3)
                 .build();
 
-        SummationResponse sum = calcClient.sum(request);
+        SummationResponse sum = serverStub.sum(summationRequest);
 
-        System.out.println("The sum of " + request.getNum1() + " and " + request.getNum2() +
+        System.out.println("The sum of " + summationRequest.getNum1() + " and " + summationRequest.getNum2() +
                 " is " + sum.getResult());
-    }
 
+        PrimeNumberDecompositionRequest decompositionRequest =
+                PrimeNumberDecompositionRequest.newBuilder()
+                .setNumber(120)
+                .build();
+
+        System.out.println("Prime number decomposition for " + decompositionRequest.getNumber() + " is:");
+
+        serverStub.decompose(decompositionRequest)
+                .forEachRemaining(partialResponse -> System.out.println(partialResponse.getPartialResult()));
+
+        System.out.println("Shutting down the channel...");
+        channel.shutdown();
+        System.out.println("The channel has been shut down");    }
 }
