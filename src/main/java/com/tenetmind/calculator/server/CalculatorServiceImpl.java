@@ -1,6 +1,7 @@
 package com.tenetmind.calculator.server;
 
 import com.tenetmind.calculator.*;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
 import java.util.ArrayList;
@@ -96,4 +97,22 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
         };
     }
 
+    @Override
+    public void squareRoot(SquareRootRequest request, StreamObserver<SquareRootResponse> responseObserver) {
+        final int number = request.getNumber();
+
+        if (number >= 0) {
+            double root = Math.sqrt(number);
+            responseObserver.onNext(SquareRootResponse.newBuilder()
+                    .setNumberRoot(root)
+                    .build());
+        } else {
+            responseObserver.onError(
+                    Status.INVALID_ARGUMENT
+                            .withDescription("The number sent is not positive")
+                            .augmentDescription("[number sent: " + number + "]")
+                            .asRuntimeException()
+            );
+        }
+    }
 }

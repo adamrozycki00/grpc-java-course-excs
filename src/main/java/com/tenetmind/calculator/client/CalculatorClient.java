@@ -3,6 +3,7 @@ package com.tenetmind.calculator.client;
 import com.tenetmind.calculator.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import java.util.List;
@@ -29,7 +30,8 @@ public class CalculatorClient {
 //        calculateSum(channel);
 //        decomposeIntoPrimeNumbers(channel);
 //        calculateAverage(channel);
-        findMaximum(channel);
+//        findMaximum(channel);
+        doErrorCall(channel);
 
         System.out.println("Shutting down the channel");
         channel.shutdown();
@@ -142,6 +144,22 @@ public class CalculatorClient {
         try {
             latch.await(3, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void doErrorCall(ManagedChannel channel) {
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub blockingStub = newBlockingStub(channel);
+
+        int i = -1;
+
+        try {
+            SquareRootResponse response = blockingStub.squareRoot(SquareRootRequest.newBuilder()
+                    .setNumber(i)
+                    .build());
+            System.out.println("Result: " + response.getNumberRoot());
+        } catch (StatusRuntimeException e) {
+            System.out.println("Got an exception for square root!");
             e.printStackTrace();
         }
     }
