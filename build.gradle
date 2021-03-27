@@ -12,13 +12,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.grpc:grpc-netty-shaded:1.36.0'
-    implementation 'io.grpc:grpc-protobuf:1.36.0'
-    implementation 'io.grpc:grpc-stub:1.36.0'
-    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+    implementation 'io.grpc:grpc-netty-shaded:1.36.1' //includes SSL libraries
+    implementation 'io.grpc:grpc-protobuf:1.36.1'
+    implementation 'io.grpc:grpc-stub:1.36.1'
+    compileOnly 'org.apache.tomcat:tomcat-annotations-api:10.0.4'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
 }
 
 test {
@@ -31,7 +31,7 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.36.0'
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.36.1'
         }
     }
     generateProtoTasks {
