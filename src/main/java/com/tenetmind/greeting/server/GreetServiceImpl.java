@@ -1,6 +1,7 @@
 package com.tenetmind.greeting.server;
 
 import com.tenetmind.greet.*;
+import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 
 public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
@@ -91,5 +92,34 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    @Override
+    public void greetWithDeadline(GreetWithDeadlineRequest request,
+                                  StreamObserver<GreetWithDeadlineResponse> responseObserver) {
+        Context current = Context.current();
+
+        String result = "Hello, " + request.getGreeting().getFirstName() + "!";
+
+        try {
+            for (int i = 0; i < 3; i++) {
+                if (!current.isCancelled()) {
+                    System.out.println("Sleep for 100 ms");
+                    Thread.sleep(100);
+                } else {
+                    return;
+                }
+            }
+
+            responseObserver.onNext(GreetWithDeadlineResponse.newBuilder()
+                    .setResult(result)
+                    .build());
+
+            responseObserver.onCompleted();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -60,5 +60,6 @@ service GreetService {
   rpc greetEveryone(stream GreetEveryoneRequest) returns (stream GreetEveryoneResponse) {};
 
   // RPC with deadline
+  // this RPC will complete in less than 300 ms
   rpc greetWithDeadline(GreetWithDeadlineRequest) returns (GreetWithDeadlineResponse) {};
 }
